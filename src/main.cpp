@@ -1,4 +1,7 @@
 #include <Arduino.h>
+#include <AccelStepper.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_ST7735.h>
 
 // put function declarations here:
 int myFunction(int, int);
