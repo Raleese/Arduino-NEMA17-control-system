@@ -3,6 +3,10 @@
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
+#include <DHT.h>
+
+void setTFT();
+void updateTFT();
 
 #define TFT_CS   7
 #define TFT_DC   9
@@ -16,18 +20,17 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
 AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
 
+#define DHTPIN 5
+#define DHTTYPE DHT22
+float airTemp;
+float airHum;
+
+DHT dht(DHTPIN, DHTTYPE);
+
 void setup() {
-    // TFT stuff
-  tft.initR(INITR_BLACKTAB);
-  tft.fillScreen(ST77XX_BLACK);
-  tft.setCursor(10, 10);
-  tft.setTextColor(ST77XX_WHITE);
-  tft.setTextSize(1);
-  tft.print("Hello!");
-
-  pinMode(TFT_BL, OUTPUT);
-
-  analogWrite(TFT_BL, 128); // ~50% brightness
+  dht.begin();
+  // TFT stuff
+  setTFT();
 
   // Stepper stuff
   stepper.setMaxSpeed(3000);
@@ -36,4 +39,40 @@ void setup() {
 
 void loop() {
   stepper.runSpeed();
+  airTemp = dht.readTemperature();
+  airHum = dht.readHumidity();
+
+  updateTFT();
+  delay(2000);
+}
+
+void setTFT(){
+  tft.initR(INITR_BLACKTAB);
+  tft.fillScreen(ST77XX_BLACK);
+  tft.setCursor(10, 10);
+  tft.setTextColor(ST77XX_YELLOW);
+  tft.setTextSize(1);
+  tft.print("Motor v2");
+  tft.setCursor(10, 30);
+  tft.setTextColor(ST77XX_WHITE);
+  tft.print("Temperature: " + String(airTemp, 0) + " C");
+  tft.setCursor(10, 50);
+  tft.print("Humidity: " + String(airHum, 0) + " %");
+  tft.setCursor(10, 70);
+  tft.print("Speed:");
+  tft.setCursor(10, 90);
+  tft.print("Multiplier:");
+
+  pinMode(TFT_BL, OUTPUT);
+  analogWrite(TFT_BL, 128); // ~50% brightness
+}
+
+void updateTFT(){
+  tft.fillRect(0, 30, 160, 40, ST77XX_BLACK); // clear only data area
+
+  tft.setCursor(10, 30);
+  tft.print("Temperature: " + String(airTemp, 0) + " C");
+
+  tft.setCursor(10, 50);
+  tft.print("Humidity: " + String(airHum, 0) + " %");
 }
