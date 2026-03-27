@@ -68,11 +68,35 @@ void setTFT(){
 }
 
 void updateTFT(){
-  tft.fillRect(0, 30, 160, 40, ST77XX_BLACK); // clear only data area
 
+  // ---- Temperature ----
   tft.setCursor(10, 30);
-  tft.print("Temperature: " + String(airTemp, 0) + " C");
+  tft.setTextColor(ST77XX_WHITE, ST77XX_BLACK);
+  tft.print("Temperature: ");
 
+  if (airTemp >= 0 && airTemp <= 20) {
+    tft.setTextColor(ST77XX_GREEN, ST77XX_BLACK);
+  } else if ((airTemp >= -10 && airTemp < 0) || (airTemp > 20 && airTemp <= 30)) {
+    tft.setTextColor(ST77XX_ORANGE, ST77XX_BLACK);
+  } else {
+    tft.setTextColor(ST77XX_RED, ST77XX_BLACK);
+  }
+
+  tft.print(String(airTemp, 0) + " C   ");
+
+
+  // ---- Humidity ----
   tft.setCursor(10, 50);
-  tft.print("Humidity: " + String(airHum, 0) + " %");
+  tft.setTextColor(ST77XX_WHITE, ST77XX_BLACK);
+  tft.print("Humidity: ");
+
+  if (airHum <= 60) {
+    tft.setTextColor(ST77XX_GREEN, ST77XX_BLACK);
+  } else if (airHum <= 70) {
+    tft.setTextColor(ST77XX_ORANGE, ST77XX_BLACK);
+  } else {
+    tft.setTextColor(ST77XX_RED, ST77XX_BLACK);
+  }
+
+  tft.print(String(airHum, 0) + " %   ");
 }
