@@ -34,6 +34,9 @@ const int plusPin = 4;
 const int changePin = 3;
 const int minusPin = 2;
 unsigned long lastUpdateTime = 0;
+bool changeWasPressed = false;
+unsigned long changePressStart = 0;
+const unsigned long longPressTime = 800; // ms
 
 void setup() {
   // Button stuff
@@ -169,16 +172,30 @@ void handleButtons() {
     delay(200); // Debounce delay
 
   }
-  if (digitalRead(changePin) == LOW) {
-    airTemp = dht.readTemperature();
-    airHum = dht.readHumidity();
 
-    if (speedMultiplier < 10) {
-      speedMultiplier += 1;
-    } else if (speedMultiplier >= 10 && speedMultiplier < 100) {
-      speedMultiplier = 100;
+
+  bool changePressed = (digitalRead(changePin) == LOW);
+
+  if (changePressed && !changeWasPressed) {
+    changeWasPressed = true;
+    changePressStart = millis();
+  }
+
+  if (!changePressed && changeWasPressed) {
+    changeWasPressed = false;
+    unsigned long pressDuration = millis() - changePressStart;
+
+    if (pressDuration >= longPressTime) {
+      airTemp = dht.readTemperature();
+      airHum = dht.readHumidity();
     } else {
-      speedMultiplier = 1;
+      if (speedMultiplier < 10) {
+        speedMultiplier += 1;
+      } else if (speedMultiplier >= 10 && speedMultiplier < 100) {
+        speedMultiplier = 100;
+      } else {
+        speedMultiplier = 1;
+      }
     }
     updateTFT();
     delay(200); // Debounce delay
