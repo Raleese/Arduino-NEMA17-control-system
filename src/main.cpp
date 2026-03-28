@@ -58,57 +58,51 @@ void loop() {
 }
 
 void setTFT(){
-tft.initR(INITR_BLACKTAB);
-tft.fillScreen(ST77XX_BLACK);
+  tft.initR(INITR_BLACKTAB);
+  tft.fillScreen(ST77XX_BLACK);
+  tft.setTextWrap(false);
 
-// ---- Title ----
-tft.setCursor(10, 10);
-tft.setTextColor(ST77XX_YELLOW);
-tft.setTextSize(1);
-tft.print("Motor v2");
+  // ---- Title ----
+  tft.setCursor(10, 10);
+  tft.setTextColor(ST77XX_MAGENTA);
+  tft.setTextSize(1);
+  tft.print("Motor v2");
 
-tft.drawLine(10, 20, 120, 20, ST77XX_WHITE);
-
-
-// ---- Temperature ----
-tft.setTextSize(1);
-tft.setTextColor(ST77XX_WHITE);
-tft.setCursor(10, 30);
-tft.print("Temperature");
-
-tft.setTextSize(2);
-tft.setCursor(80, 40);
-tft.print(String(airTemp, 0) + "C");
+  tft.drawLine(10, 20, 120, 20, ST77XX_WHITE);
+  tft.setTextColor(ST77XX_WHITE);
 
 
-// ---- Humidity ----
-tft.setTextSize(1);
-tft.setCursor(10, 60);
-tft.print("Humidity");
+  // ---- Speed ----
+  tft.setTextSize(1);
+  tft.setCursor(10, 30);
+  tft.print("Speed");
 
-tft.setTextSize(2);
-tft.setCursor(80, 70);
-tft.print(String(airHum, 0) + "%");
-
-
-// ---- Speed ----
-tft.setTextSize(1);
-tft.setCursor(10, 90);
-tft.print("Speed");
-
-tft.setTextSize(2);
-tft.setCursor(80, 100);
-tft.print(String(Speed));
+  tft.setTextSize(2);
+  tft.setCursor(80, 40);
+  tft.print(String(Speed));
 
 
-// ---- Multiplier ----
-tft.setTextSize(1);
-tft.setCursor(10, 120);
-tft.print("Multiplier");
+  // ---- Multiplier ----
+  tft.setTextSize(1);
+  tft.setCursor(10, 60);
+  tft.print("Increment");
 
-tft.setTextSize(2);
-tft.setCursor(80, 130);
-tft.print(String(speedMultiplier) + "x");
+  tft.setTextSize(2);
+  tft.setCursor(80, 70);
+  tft.print( "+" +String(speedMultiplier));
+
+  tft.drawLine(10, 140, 120, 140, ST77XX_WHITE);
+
+  // ---- Temperature ----
+  tft.setTextSize(1);
+  tft.setCursor(10, 145);
+  tft.print(String(airTemp, 0) + "C");
+
+
+  // ---- Humidity ----
+  tft.setTextSize(1);
+  tft.setCursor(100, 145);
+  tft.print(String(airHum, 0) + "%");
 
   pinMode(TFT_BL, OUTPUT);
   analogWrite(TFT_BL, 128); // ~50% brightness
@@ -116,68 +110,43 @@ tft.print(String(speedMultiplier) + "x");
 
 void updateTFT(){
 
-  // ---- Temperature label ----
-  tft.setTextSize(1);
-  tft.setTextColor(ST77XX_WHITE, ST77XX_BLACK);
-  tft.setCursor(10, 30);
-  tft.print("Temperature   ");
-
   // ---- Temperature value ----
   if (airTemp >= 0 && airTemp <= 20) {
     tft.setTextColor(ST77XX_GREEN, ST77XX_BLACK);
   } else if ((airTemp >= -10 && airTemp < 0) || (airTemp > 20 && airTemp <= 30)) {
-    tft.setTextColor(ST77XX_ORANGE, ST77XX_BLACK);
+    tft.setTextColor(ST77XX_YELLOW, ST77XX_BLACK);
   } else {
     tft.setTextColor(ST77XX_RED, ST77XX_BLACK);
   }
 
-  tft.setTextSize(2);
-  tft.setCursor(80, 40);
-  tft.print(String(airTemp, 0) + "C  ");
-
-
-  // ---- Humidity label ----
   tft.setTextSize(1);
-  tft.setTextColor(ST77XX_WHITE, ST77XX_BLACK);
-  tft.setCursor(10, 60);
-  tft.print("Humidity   ");
+  tft.setCursor(10, 145);
+  tft.print(String(airTemp, 0) + "C  ");
 
   // ---- Humidity value ----
   if (airHum <= 60) {
     tft.setTextColor(ST77XX_GREEN, ST77XX_BLACK);
   } else if (airHum <= 70) {
-    tft.setTextColor(ST77XX_ORANGE, ST77XX_BLACK);
+    tft.setTextColor(ST77XX_YELLOW, ST77XX_BLACK);
   } else {
     tft.setTextColor(ST77XX_RED, ST77XX_BLACK);
   }
 
-  tft.setTextSize(2);
-  tft.setCursor(80, 70);
-  tft.print(String(airHum, 0) + "%  ");
-
-
-  // ---- Speed label ----
   tft.setTextSize(1);
-  tft.setTextColor(ST77XX_WHITE, ST77XX_BLACK);
-  tft.setCursor(10, 90);
-  tft.print("Speed   ");
+  tft.setCursor(100, 145);
+  tft.print(String(airHum, 0) + "%  ");
 
   // ---- Speed value ----
   tft.setTextSize(2);
-  tft.setCursor(80, 100);
-  tft.print(String(Speed) + "   ");
-
-
-  // ---- Multiplier label ----
-  tft.setTextSize(1);
   tft.setTextColor(ST77XX_WHITE, ST77XX_BLACK);
-  tft.setCursor(10, 120);
-  tft.print("Multiplier   ");
+  tft.setCursor(80, 40);
+  tft.print(String(Speed) + "  ");
 
   // ---- Multiplier value ----
   tft.setTextSize(2);
-  tft.setCursor(80, 130);
-  tft.print(String(speedMultiplier) + "x  ");
+  tft.setTextColor(ST77XX_WHITE, ST77XX_BLACK);
+  tft.setCursor(80, 70);
+  tft.print( "+" + String(speedMultiplier) + "  ");
 }
 
 void handleButtons() {
