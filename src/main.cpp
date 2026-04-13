@@ -8,18 +8,21 @@
 void setTFT();
 void updateTFT();
 void handleButtons();
+void drawBatteryBar(float batteryVoltage);
+
+#define VOLTAGE_PIN A0 
 
 #define TFT_CS   7
 #define TFT_DC   9
 #define TFT_RST  8
-#define TFT_BL   6 
+#define TFT_BL   6
 
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
 #define STEP_PIN 10
 #define DIR_PIN 12
-int speedMultiplier = 1;
-int Speed = 1000;
+float speedMultiplier = 0.1;
+float Speed = 10;
 
 AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
 
@@ -33,7 +36,16 @@ DHT dht(DHTPIN, DHTTYPE);
 const int plusPin = 4;
 const int changePin = 3;
 const int minusPin = 2;
+
 unsigned long lastUpdateTime = 0;
+unsigned long lastVoltageUpdate = 0;
+const unsigned long voltageUpdateInterval = 2000; // ms
+const float batteryMaxVoltage = 12.7;
+const float batteryMinVoltage = 11.0;
+
+const float changeSize = 0.1;
+const float lastVoltage = 0.0;
+
 bool changeWasPressed = false;
 unsigned long changePressStart = 0;
 const unsigned long longPressTime = 800; // ms
@@ -80,8 +92,7 @@ void setTFT(){
   tft.setCursor(10, 30);
   tft.print("Speed");
 
-  tft.setTextSize(2);
-  tft.setCursor(80, 40);
+  tft.setCursor(80, 30);
   tft.print(String(Speed));
 
 
@@ -90,9 +101,10 @@ void setTFT(){
   tft.setCursor(10, 60);
   tft.print("Increment");
 
-  tft.setTextSize(2);
-  tft.setCursor(80, 70);
+  tft.setCursor(80, 60);
   tft.print( "+" +String(speedMultiplier));
+
+  // ---- Line ----
 
   tft.drawLine(10, 140, 120, 140, ST77XX_WHITE);
 
@@ -140,16 +152,44 @@ void updateTFT(){
   tft.print(String(airHum, 0) + "%  ");
 
   // ---- Speed value ----
-  tft.setTextSize(2);
   tft.setTextColor(ST77XX_WHITE, ST77XX_BLACK);
-  tft.setCursor(80, 40);
+  tft.setCursor(80, 30);
   tft.print(String(Speed) + "  ");
 
   // ---- Multiplier value ----
-  tft.setTextSize(2);
   tft.setTextColor(ST77XX_WHITE, ST77XX_BLACK);
-  tft.setCursor(80, 70);
+  tft.setCursor(80, 60);
   tft.print( "+" + String(speedMultiplier) + "  ");
+}
+
+void drawBatteryBar(float batteryVoltage) {
+  const int barX = 10;
+  const int barY = 130;
+  const int barWidth = 100;
+  const int barHeight = 8;
+
+  float batteryPercent = (batteryVoltage - batteryMinVoltage) / (batteryMaxVoltage - batteryMinVoltage);
+  if (batteryPercent < 0.0) {
+    batteryPercent = 0.0;
+  } else if (batteryPercent > 1.0) {
+    batteryPercent = 1.0;
+  }
+
+  int fillWidth = (int)((barWidth - 2) * batteryPercent);
+
+  tft.drawRect(barX, barY, barWidth, barHeight, ST77XX_WHITE);
+  tft.fillRect(barX + 1, barY + 1, barWidth - 2, barHeight - 2, ST77XX_BLACK);
+
+  uint16_t barColor = ST77XX_GREEN;
+  if (batteryPercent < 0.25) {
+    barColor = ST77XX_RED;
+  } else if (batteryPercent < 0.5) {
+    barColor = ST77XX_YELLOW;
+  }
+
+  if (fillWidth > 0) {
+    tft.fillRect(barX + 1, barY + 1, fillWidth, barHeight - 2, barColor);
+  }
 }
 
 void handleButtons() {
@@ -194,8 +234,9 @@ void handleButtons() {
       } else if (speedMultiplier >= 10 && speedMultiplier < 100) {
         speedMultiplier = 100;
       } else {
-        speedMultiplier = 1;
+        speedMultiplier = 0.1;
       }
+      
     }
     updateTFT();
     delay(200); // Debounce delay
