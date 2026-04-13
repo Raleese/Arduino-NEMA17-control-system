@@ -8,9 +8,6 @@
 void setTFT();
 void updateTFT();
 void handleButtons();
-void drawBatteryBar(float batteryVoltage);
-
-#define VOLTAGE_PIN A0 
 
 #define TFT_CS   7
 #define TFT_DC   9
@@ -37,14 +34,7 @@ const int plusPin = 4;
 const int changePin = 3;
 const int minusPin = 2;
 
-unsigned long lastUpdateTime = 0;
-unsigned long lastVoltageUpdate = 0;
-const unsigned long voltageUpdateInterval = 2000; // ms
-const float batteryMaxVoltage = 12.7;
-const float batteryMinVoltage = 11.0;
-
 const float changeSize = 0.1;
-const float lastVoltage = 0.0;
 
 bool changeWasPressed = false;
 unsigned long changePressStart = 0;
@@ -160,36 +150,6 @@ void updateTFT(){
   tft.setTextColor(ST77XX_WHITE, ST77XX_BLACK);
   tft.setCursor(80, 60);
   tft.print( "+" + String(speedMultiplier) + "  ");
-}
-
-void drawBatteryBar(float batteryVoltage) {
-  const int barX = 10;
-  const int barY = 130;
-  const int barWidth = 100;
-  const int barHeight = 8;
-
-  float batteryPercent = (batteryVoltage - batteryMinVoltage) / (batteryMaxVoltage - batteryMinVoltage);
-  if (batteryPercent < 0.0) {
-    batteryPercent = 0.0;
-  } else if (batteryPercent > 1.0) {
-    batteryPercent = 1.0;
-  }
-
-  int fillWidth = (int)((barWidth - 2) * batteryPercent);
-
-  tft.drawRect(barX, barY, barWidth, barHeight, ST77XX_WHITE);
-  tft.fillRect(barX + 1, barY + 1, barWidth - 2, barHeight - 2, ST77XX_BLACK);
-
-  uint16_t barColor = ST77XX_GREEN;
-  if (batteryPercent < 0.25) {
-    barColor = ST77XX_RED;
-  } else if (batteryPercent < 0.5) {
-    barColor = ST77XX_YELLOW;
-  }
-
-  if (fillWidth > 0) {
-    tft.fillRect(barX + 1, barY + 1, fillWidth, barHeight - 2, barColor);
-  }
 }
 
 void handleButtons() {
